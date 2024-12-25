@@ -1,0 +1,85 @@
+# .github/workflows/deploy-infrastructure.yaml
+name: Deploy Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'infrastructure/terraform/**'
+  workflow_dispatch:
+
+jobs:
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      REGION: us-central1
+      ZONE: us-central1-a
+      CLUSTER_NAME: chirpcircle-cluster
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          version: '413.0.0' # or the latest version of Google Cloud SDK
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+      - name: Authenticate gcloud
+        run: gcloud auth configure-docker
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_wrapper: false
+
+      - name: Terraform Init
+        working-directory: infrastructure/terraform
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        working-directory: infrastructure/terraform
+        run: terraform plan \
+          -var "google_credentials_file=${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" \
+          -var "project_id=${{ secrets.GCP_PROJECT_ID }}" \
+          -var "region=${{ env.REGION }}" \
+          -var "zone=${{ env.ZONE }}" \
+          -var "cluster_name=${{ env.CLUSTER_NAME }}" \
+          -var "environment=prod" \
+          -out=plan.out
+
+      - name: Check for Terraform Changes
+        id: check_changes
+        working-directory: infrastructure/terraform
+        run: |
+          terraform show -json plan.out | jq -e '.resource_changes | length == 0' && echo "No changes" || echo "Changes detected"
+        continue-on-error: true
+
+      - name: Terraform Apply
+        if: steps.check_changes.outputs.changes != 'No changes'
+        working-directory: infrastructure/terraform
+        run: terraform apply -auto-approve plan.out
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Get GKE credentials
+        run: gcloud container clusters get-credentials ${{ env.CLUSTER_NAME }} --region ${{ env.REGION }} --project ${{ env.PROJECT_ID }}
+      
+      - name: Deploy to GKE
+        run: |
+          kubectl apply -f infrastructure/kubernetes/deployment.yaml
+          kubectl apply -f infrastructure/kubernetes/service.yaml
+          kubectl apply -f infrastructure/kubernetes/ingress.yaml
+

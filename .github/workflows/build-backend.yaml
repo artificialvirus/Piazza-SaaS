@@ -1,0 +1,19 @@
+# .github/workflows/build-backend.yaml
+name: Build and Test Backend
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'ChirpCircle/backend/**'
+  pull_request:
+    paths:
+      - 'ChirpCircle/backend/**'
+
+jobs:
+  build-and-test-backend:
+    uses: ./.github/workflows/reusable/ci-common.yaml
+    with:
+      node-version: '23.2.0'
+      working-directory: 'ChirpCircle/backend'
+

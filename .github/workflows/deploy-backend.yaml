@@ -1,0 +1,41 @@
+# .github/workflows/deploy-backend.yaml
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ChirpCircle/backend/**'
+  # Optionally allow manual dispatch
+  workflow_dispatch:
+
+jobs:
+  build-and-push-docker:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16' # or whichever version you require
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Build Docker image
+        working-directory: ChirpCircle/backend
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/chirpcircle-backend:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/chirpcircle-backend:latest
+
