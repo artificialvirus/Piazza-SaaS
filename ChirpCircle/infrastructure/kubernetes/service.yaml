@@ -1,0 +1,16 @@
+# /infrastructure/kubernetes/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: chirpcircle-backend-service
+  labels:
+    app: chirpcircle-backend
+spec:
+  type: LoadBalancer
+  selector:
+    app: chirpcircle-backend
+  ports:
+    - protocol: TCP
+      port: 80        # The port accessible externally
+      targetPort: 3000  # The container port
+

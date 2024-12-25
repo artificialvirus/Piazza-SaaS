@@ -1,0 +1,9 @@
+{
+    "app": {
+      "port": 8080
+    },
+    "db": {
+      "uri": "mongodb://production-db-uri/chirpcircle"
+    }
+  }
+  

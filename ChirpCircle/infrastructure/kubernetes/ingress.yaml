@@ -1,0 +1,19 @@
+# /infrastructure/kubernetes/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: chirpcircle-backend-ingress
+  annotations:
+    spec.ingressClassName: "gce"  # or "nginx"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: chirpcircle-backend-service
+            port:
+              number: 80
+

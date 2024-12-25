@@ -1,0 +1,23 @@
+# /infrastructure/kubernetes/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chirpcircle-backend
+  labels:
+    app: chirpcircle-backend
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: chirpcircle-backend
+  template:
+    metadata:
+      labels:
+        app: chirpcircle-backend
+    spec:
+      containers:
+      - name: chirpcircle-backend
+        image: alperond/chirpcircle-backend:latest
+        ports:
+        - containerPort: 3000 
+

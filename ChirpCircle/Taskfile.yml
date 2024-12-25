@@ -1,0 +1,141 @@
+version: '3'
+
+tasks:
+  # Backend tasks
+  start-backend:
+    desc: Start the backend application
+    cmds:
+      - cd backend && npm run start
+
+  dev-backend:
+    desc: Run the backend in development mode
+    cmds:
+      - cd backend && npm run dev
+
+  lint-backend:
+    desc: Lint backend code
+    cmds:
+      - cd backend && npm run lint
+
+  test-backend:
+    desc: Run backend tests
+    cmds:
+      - cd backend && npm test
+
+  # Frontend tasks
+  build-frontend:
+    desc: Build the frontend application
+    cmds:
+      - cd frontend && npm run build
+
+  start-frontend:
+    desc: Start the frontend application
+    cmds:
+      - cd frontend && npm run preview
+
+  dev-frontend:
+    desc: Run the frontend in development mode
+    cmds:
+      - cd frontend && npm run dev
+
+  lint-frontend:
+    desc: Lint frontend code
+    cmds:
+      - cd frontend && npm run lint
+
+  test-frontend:
+    desc: Run frontend tests
+    cmds:
+      - cd frontend && npm test
+
+  # Docker tasks
+  build-docker:
+    desc: Build the Docker image
+    cmds:
+      - docker build -t chirpcircle-backend:latest backend
+
+  push-docker:
+    desc: Push the Docker image to DockerHub
+    cmds:
+      - docker push chirpcircle-backend:latest
+
+  # Kubernetes tasks
+  deploy-k8s:
+    desc: Deploy the application to Kubernetes
+    cmds:
+      - kubectl apply -f infrastructure/kubernetes/deployment.yaml
+
+  # CI/CD tasks
+  ci:
+    desc: Run the CI pipeline
+    cmds:
+      - task: lint-backend
+      - task: test-backend
+      - task: build-frontend
+      - task: lint-frontend
+      - task: test-frontend
+
+  cd:
+    desc: Run the CD pipeline
+    cmds:
+      - task: build-docker
+      - task: push-docker
+      - task: deploy-k8s
+
+  # Common tasks
+  start:
+    desc: Start the application
+    cmds:
+      - task: start-backend
+      - task: start-frontend
+
+  dev:
+    desc: Run the application in development mode
+    cmds:
+      - task: dev-backend
+      - task: dev-frontend
+
+  lint:
+    desc: Lint the code
+    cmds:
+      - task: lint-backend
+      - task: lint-frontend
+
+  test:
+    desc: Run tests
+    cmds:
+      - task: test-backend
+      - task: test-frontend
+
+  build:
+    desc: Build the application
+    cmds:
+      - task: build-frontend
+
+  deploy:
+    desc: Deploy the application
+    cmds:
+      - task: build-docker
+      - task: push-docker
+      - task: deploy-k8s
+
+  ci-cd:
+    desc: Run the CI/CD pipeline
+    cmds:
+      - task: ci
+      - task: cd
+
+  all:
+    desc: Run all tasks
+    cmds:
+      - task: lint
+      - task: test
+      - task: build
+      - task: deploy
+
+  help:
+    desc: Display available tasks
+    cmds:
+      - task: help
+
+

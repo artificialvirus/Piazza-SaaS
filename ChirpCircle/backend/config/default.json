@@ -1,0 +1,10 @@
+{
+    "app": {
+      "port": 3000
+    },
+    "db": {
+      "uri": "mongodb://localhost/chirpcircle"
+    },
+    "jwtSecret": "your-default-jwt-secret"
+  }
+  
