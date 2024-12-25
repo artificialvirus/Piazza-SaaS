@@ -12,7 +12,7 @@ on:
 
 jobs:
   build-and-test-backend:
-    uses: ./.github/workflows/reusable/ci-common.yaml
+    uses: ./.github/workflows/ci-common.yaml
     with:
       node-version: '23.2.0'
       working-directory: 'ChirpCircle/backend'
